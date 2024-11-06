@@ -6,11 +6,33 @@ const BASE_DIRECTORY = "/Users/arielrahmane_1/leonardo-ai/repos";
 const DIRECTORY_PATH = BASE_DIRECTORY + "/leonardo-platform/libs";
 const OUTPUT_DIRECTORY = path.join(__dirname, "../../output");
 const MAX_NODES_PER_FILE = 100;
+let fileIndex = 0;
 
 const project = new Project();
 
 function getRelativeFilePath(filePath: string, baseDir: string): string {
   return path.relative(baseDir, filePath);
+}
+
+function getAllFilePaths(directory: string): string[] {
+  let filePaths: string[] = [];
+
+  function iterateDirectory(dir: string) {
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      const fullPath = path.join(dir, file);
+      const stat = fs.statSync(fullPath);
+
+      if (stat.isDirectory()) {
+        iterateDirectory(fullPath);
+      } else {
+        filePaths.push(fullPath);
+      }
+    }
+  }
+
+  iterateDirectory(directory);
+  return filePaths;
 }
 
 function extractNodeData(node: Node, filePath: string): any {
@@ -46,11 +68,12 @@ function extractNodeData(node: Node, filePath: string): any {
   return extractedNode;
 }
 
-async function saveNodesToJson(nodes: any[], fileIndex: number) {
+async function saveNodesToJson(nodes: any[]) {
   const outputPath = path.join(OUTPUT_DIRECTORY, `nodes_${fileIndex}.json`);
-  console.log("Nodes length for nodes_${fileIndex}.json: ", nodes.length);
+  console.log(`Nodes length for nodes_${fileIndex}.json: `, nodes.length);
   console.log("-----------------------------------------");
   fs.writeFileSync(outputPath, JSON.stringify(nodes, null, 2), "utf8");
+  fileIndex++;
 }
 
 function analyzeFile(filePath: string): any[] {
@@ -67,39 +90,29 @@ function analyzeFile(filePath: string): any[] {
   return nodes;
 }
 
-let fileIndex = 0;
 function scanDirectory(directory: string) {
-  const files = fs.readdirSync(directory);
+  const filesPath = getAllFilePaths(directory);
   let nodes: any[] = [];
 
-  for (const file of files) {
-    const fullPath = path.join(directory, file);
-    const stat = fs.statSync(fullPath);
-
-    if (stat.isDirectory()) {
-      scanDirectory(fullPath);
-    } else if (fullPath.endsWith(".ts") && !fullPath.endsWith(".test.ts")) {
+  for (const filePath of filesPath) {
+    if (filePath.endsWith(".ts") && !filePath.endsWith(".test.ts")) {
       console.log(
         "Extracting: ",
-        getRelativeFilePath(fullPath, BASE_DIRECTORY)
+        getRelativeFilePath(filePath, BASE_DIRECTORY)
       );
-      const fileNodes = analyzeFile(fullPath);
+      const fileNodes = analyzeFile(filePath);
       nodes.push(...fileNodes);
 
       // Check if nodes exceed the limit, then save and reset
       if (nodes.length >= MAX_NODES_PER_FILE) {
-        console.log("Saving nodes: ", fileIndex);
-        saveNodesToJson(nodes, fileIndex);
-        fileIndex++;
+        saveNodesToJson(nodes);
         nodes = [];
       }
     }
   }
 
   if (nodes.length > 0) {
-    fileIndex++;
-    console.log("saving remaining nodes: ", fileIndex);
-    saveNodesToJson(nodes, fileIndex);
+    saveNodesToJson(nodes);
   }
 }
 
