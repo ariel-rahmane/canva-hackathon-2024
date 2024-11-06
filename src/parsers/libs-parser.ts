@@ -9,6 +9,10 @@ const MAX_NODES_PER_FILE = 500;
 
 const project = new Project();
 
+function getRelativeFilePath(filePath: string, baseDir: string): string {
+  return path.relative(baseDir, filePath);
+}
+
 function extractNodeData(node: Node, filePath: string): any {
   const code = node.getText();
   const start = node.getStartLineNumber();
@@ -29,7 +33,7 @@ function extractNodeData(node: Node, filePath: string): any {
     code,
     metadata: {
       fileName: path.basename(filePath),
-      fileLocation: filePath,
+      fileLocation: getRelativeFilePath(filePath, BASE_DIRECTORY),
       comment,
       entityName,
       statementType,
