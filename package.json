@@ -1,0 +1,16 @@
+{
+  "name": "canva-hackathon-2024",
+  "version": "1.0.0",
+  "description": "Canva hackathon 2024 by Ariel Rahmane",
+  "main": "index.js",
+  "author": "Ariel Rahmane <ariel.rahmane@leonardo.ai>",
+  "license": "MIT",
+  "dependencies": {
+    "ts-morph": "^24.0.0",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "ts-node": "^10.9.2"
+  }
+}
