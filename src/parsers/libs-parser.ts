@@ -9,7 +9,7 @@ const MAX_NODES_PER_FILE = 500;
 
 const project = new Project();
 
-function extractNodeData(node: Node, filePath: string, nodes: any[]) {
+function extractNodeData(node: Node, filePath: string): any {
   const code = node.getText();
   const start = node.getStartLineNumber();
   const end = node.getEndLineNumber();
@@ -25,7 +25,7 @@ function extractNodeData(node: Node, filePath: string, nodes: any[]) {
     return;
   }
 
-  nodes.push({
+  const extractedNode = {
     code,
     metadata: {
       fileName: path.basename(filePath),
@@ -37,7 +37,9 @@ function extractNodeData(node: Node, filePath: string, nodes: any[]) {
       startLineNumber: start,
       endLineNumber: end
     }
-  });
+  };
+
+  return extractedNode;
 }
 
 let fileIndex = 0;
@@ -48,12 +50,14 @@ function saveNodesToJson(nodes: any[]) {
 }
 
 function analyzeFile(filePath: string): any[] {
-  console.log(`Analyzing file at ${filePath}`);
   const sourceFile = project.addSourceFileAtPath(filePath);
   const nodes: any[] = [];
 
   sourceFile.forEachChild((node) => {
-    extractNodeData(node, filePath, nodes);
+    const extractedNode = extractNodeData(node, filePath);
+    if (extractedNode) {
+      nodes.push(extractedNode);
+    }
   });
 
   return nodes;
