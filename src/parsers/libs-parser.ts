@@ -6,6 +6,9 @@ const BASE_DIRECTORY = "/Users/arielrahmane_1/leonardo-ai/repos";
 const DIRECTORY_PATH = BASE_DIRECTORY + "/leonardo-platform/libs";
 const OUTPUT_DIRECTORY = path.join(__dirname, "../../output");
 const MAX_NODES_PER_FILE = 100;
+
+const includeExtensions = [".ts", ".tsx"];
+const excludePatterns = [".test.ts", ".test.tsx"];
 let fileIndex = 0;
 
 const project = new Project();
@@ -33,6 +36,19 @@ function getAllFilePaths(directory: string): string[] {
 
   iterateDirectory(directory);
   return filePaths;
+}
+
+function shouldIncludeFile(filePath: string): boolean {
+  const hasValidExtension = includeExtensions.some((ext) =>
+    filePath.endsWith(ext)
+  );
+  if (!hasValidExtension) return false;
+
+  // Check if the file matches any of the exclude patterns
+  const isExcluded = excludePatterns.some((pattern) =>
+    filePath.endsWith(pattern)
+  );
+  return !isExcluded;
 }
 
 function extractNodeData(node: Node, filePath: string): any {
@@ -95,7 +111,7 @@ function scanDirectory(directory: string) {
   let nodes: any[] = [];
 
   for (const filePath of filesPath) {
-    if (!filePath.endsWith(".test.ts") && !filePath.endsWith(".css")) {
+    if (shouldIncludeFile(filePath)) {
       console.log(
         "Extracting: ",
         getRelativeFilePath(filePath, BASE_DIRECTORY)
