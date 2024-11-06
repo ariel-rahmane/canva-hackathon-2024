@@ -23,9 +23,9 @@ function extractNodeData(node: Node, filePath: string): any {
     .getLeadingCommentRanges()
     .map((c) => c.getText())
     .join("\n");
-  const statementType = node.getKindName();
+  const type = node.getKindName();
 
-  if (!code || statementType === "EndOfFileToken") {
+  if (!code || type === "EndOfFileToken" || type === "ImportDeclaration") {
     return;
   }
 
@@ -36,7 +36,7 @@ function extractNodeData(node: Node, filePath: string): any {
       fileLocation: getRelativeFilePath(filePath, BASE_DIRECTORY),
       comment,
       entityName,
-      statementType,
+      type,
       width,
       startLineNumber: start,
       endLineNumber: end
