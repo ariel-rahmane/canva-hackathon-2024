@@ -3,9 +3,9 @@ import fs from "fs";
 import path from "path";
 
 const BASE_DIRECTORY = "/Users/arielrahmane_1/leonardo-ai/repos";
-const DIRECTORY_PATH = BASE_DIRECTORY + "/leonardo-platform/libs/tracking";
+const DIRECTORY_PATH = BASE_DIRECTORY + "/leonardo-platform/libs";
 const OUTPUT_DIRECTORY = path.join(__dirname, "../../output");
-const MAX_NODES_PER_FILE = 500;
+const MAX_NODES_PER_FILE = 100;
 
 const project = new Project();
 
@@ -46,11 +46,11 @@ function extractNodeData(node: Node, filePath: string): any {
   return extractedNode;
 }
 
-let fileIndex = 0;
-function saveNodesToJson(nodes: any[]) {
+async function saveNodesToJson(nodes: any[], fileIndex: number) {
   const outputPath = path.join(OUTPUT_DIRECTORY, `nodes_${fileIndex}.json`);
+  console.log("Nodes length for nodes_${fileIndex}.json: ", nodes.length);
+  console.log("-----------------------------------------");
   fs.writeFileSync(outputPath, JSON.stringify(nodes, null, 2), "utf8");
-  fileIndex++;
 }
 
 function analyzeFile(filePath: string): any[] {
@@ -67,9 +67,11 @@ function analyzeFile(filePath: string): any[] {
   return nodes;
 }
 
+let fileIndex = 0;
 function scanDirectory(directory: string) {
   const files = fs.readdirSync(directory);
-  const nodes: any[] = [];
+  let nodes: any[] = [];
+
   for (const file of files) {
     const fullPath = path.join(directory, file);
     const stat = fs.statSync(fullPath);
@@ -77,11 +79,28 @@ function scanDirectory(directory: string) {
     if (stat.isDirectory()) {
       scanDirectory(fullPath);
     } else if (fullPath.endsWith(".ts") && !fullPath.endsWith(".test.ts")) {
+      console.log(
+        "Extracting: ",
+        getRelativeFilePath(fullPath, BASE_DIRECTORY)
+      );
       const fileNodes = analyzeFile(fullPath);
-      nodes.push(fileNodes);
+      nodes.push(...fileNodes);
+
+      // Check if nodes exceed the limit, then save and reset
+      if (nodes.length >= MAX_NODES_PER_FILE) {
+        console.log("Saving nodes: ", fileIndex);
+        saveNodesToJson(nodes, fileIndex);
+        fileIndex++;
+        nodes = [];
+      }
     }
   }
-  saveNodesToJson(nodes);
+
+  if (nodes.length > 0) {
+    fileIndex++;
+    console.log("saving remaining nodes: ", fileIndex);
+    saveNodesToJson(nodes, fileIndex);
+  }
 }
 
 scanDirectory(DIRECTORY_PATH);
