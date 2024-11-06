@@ -95,7 +95,7 @@ function scanDirectory(directory: string) {
   let nodes: any[] = [];
 
   for (const filePath of filesPath) {
-    if (filePath.endsWith(".ts") && !filePath.endsWith(".test.ts")) {
+    if (!filePath.endsWith(".test.ts") && !filePath.endsWith(".css")) {
       console.log(
         "Extracting: ",
         getRelativeFilePath(filePath, BASE_DIRECTORY)
