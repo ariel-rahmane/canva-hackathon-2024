@@ -29,7 +29,14 @@ def query():
     
     responses = retriever.retrieve(query_text)
     result = [
-        {"score": response.score, "text": response.node.text}
+        {
+          "score": response.score,
+          "code": response.node.text,
+          "fileLocation": response.node.metadata["fileLocation"],
+          "fileName": response.node.metadata["fileName"],
+          "startLineNumber": response.node.metadata["startLineNumber"],
+          "endLineNumber": response.node.metadata["endLineNumber"],
+        }
         for response in responses
     ]
 
