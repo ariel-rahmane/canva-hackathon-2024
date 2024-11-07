@@ -8,6 +8,8 @@
 
 .messagesContainer {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   padding: 10px;
   margin-bottom: 20px;
@@ -22,7 +24,7 @@
   padding: 10px;
   border-radius: 8px;
   margin: 5px 0;
-  align-self: flex-end;
+  align-self: flex-start;
   max-width: 60%;
 }
 
@@ -32,7 +34,7 @@
   padding: 10px;
   border-radius: 8px;
   margin: 5px 0;
-  align-self: flex-start;
+  align-self: flex-end;
   max-width: 60%;
 }
 
