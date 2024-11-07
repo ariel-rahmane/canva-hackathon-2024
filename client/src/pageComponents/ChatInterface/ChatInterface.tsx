@@ -11,10 +11,24 @@ interface ChatMessage {
   content: string;
 }
 
+const apiUrl = process.env.NEXT_PUBLIC_API_HOST;
+console.log("API URL:", apiUrl);
+
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  async function sendMessage(userMessage: string) {
+    console.log("sending message...");
+    const response = await fetch(`${apiUrl}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userMessage })
+    });
+    const data = await response.json();
+    return data;
+  }
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -27,14 +41,10 @@ export function ChatInterface() {
     setInput("");
     setLoading(true);
 
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input })
-    });
-    const data = await response.json();
+    const data = await sendMessage(input);
+    console.log(data);
 
-    setMessages([...newMessages, { role: "assistant", content: data.message }]);
+    setMessages([...newMessages, { role: "assistant", content: data[0].code }]);
     setLoading(false);
   };
 
@@ -48,7 +58,22 @@ export function ChatInterface() {
               msg.role === "user" ? styles.userMessage : styles.assistantMessage
             }
           >
-            {msg.content}
+            {msg.role === "user" ? (
+              msg.content
+            ) : (
+              <pre
+                style={{
+                  whiteSpace: "pre-wrap",
+                  fontFamily: "monospace",
+                  backgroundColor: "#f5f5f5",
+                  padding: "10px",
+                  borderRadius: "4px",
+                  overflowX: "auto"
+                }}
+              >
+                {msg.content}
+              </pre>
+            )}
           </div>
         ))}
         {loading && (

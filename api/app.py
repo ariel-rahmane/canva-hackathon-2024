@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import chromadb
 from llama_index.core.settings import Settings
 from llama_index.core import VectorStoreIndex
@@ -9,6 +10,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 TOP_K = 3
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000"])
 
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
@@ -19,13 +21,13 @@ chroma_collection = db.get_or_create_collection("libs")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(similarity_top_k=TOP_K)
 
-@app.route('/query', methods=['POST'])
+@app.route('/api/chat', methods=['POST'])
 def query():
     data = request.get_json()
-    if not data or 'text' not in data:
-        return jsonify({"error": "No query text provided"}), 400
+    if not data or 'message' not in data:
+        return jsonify({"error": "No query message provided"}), 400
 
-    query_text = data['text']
+    query_text = data['message']
     
     responses = retriever.retrieve(query_text)
     result = [
