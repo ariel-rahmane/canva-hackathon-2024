@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import styles from "@/styles/ChatInterface.module.scss";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -83,18 +85,17 @@ export function ChatInterface() {
                 </p>
                 <p></p>
                 <br />
-                <pre
-                  style={{
-                    whiteSpace: "pre-wrap",
-                    fontFamily: "monospace",
-                    backgroundColor: "#f5f5f5",
-                    padding: "10px",
+                <SyntaxHighlighter
+                  language="typescript"
+                  style={materialDark}
+                  customStyle={{
                     borderRadius: "4px",
-                    overflowX: "auto"
+                    padding: "10px",
+                    backgroundColor: "#2d2d2d"
                   }}
                 >
                   {msg.content.code}
-                </pre>
+                </SyntaxHighlighter>
               </div>
             )}
           </div>
@@ -110,6 +111,11 @@ export function ChatInterface() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSend();
+            }
+          }}
         />
         <Button
           variant="contained"
