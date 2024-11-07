@@ -39,7 +39,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 # ---------------------------------------------
 
 # Comment the below two lines for cost analysis
-Settings.llm = OpenAI(model="gpt-4")
+Settings.llm = OpenAI(model="gpt-3.5-turbo")
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
 
 db = chromadb.PersistentClient(path="./chroma_database")
