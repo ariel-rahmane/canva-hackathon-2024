@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import styles from "@/styles/ChatInterface.module.scss";
@@ -34,6 +34,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
 
   async function sendMessage(userMessage: string) {
     const response = await fetch(`${apiUrl}/api/chat`, {
@@ -52,20 +53,39 @@ export function ChatInterface() {
       ...messages,
       { role: "user", content: input } as ChatMessage
     ];
-    setMessages(newMessages);
+    insertMessageToChat(newMessages);
     setInput("");
     setLoading(true);
 
     const data = await sendMessage(input);
     console.log(data);
 
-    setMessages([...newMessages, { role: "assistant", content: data[0] }]);
     setLoading(false);
+    insertMessageToChat([
+      ...newMessages,
+      { role: "assistant", content: data[0] }
+    ]);
+  };
+
+  const scrollToBottom = () => {
+    if (messageContainerRef.current) {
+      setTimeout(() => {
+        messageContainerRef?.current?.scrollTo({
+          top: messageContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }, 100);
+    }
+  };
+
+  const insertMessageToChat = (message: ChatMessage[]) => {
+    setMessages(message);
+    scrollToBottom();
   };
 
   return (
     <div className={styles.chatContainer}>
-      <div className={styles.messagesContainer}>
+      <div className={styles.messagesContainer} ref={messageContainerRef}>
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -88,6 +108,7 @@ export function ChatInterface() {
                 <SyntaxHighlighter
                   language="typescript"
                   style={materialDark}
+                  className={styles.codeContainer}
                   customStyle={{
                     borderRadius: "4px",
                     padding: "10px",
