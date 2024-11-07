@@ -7,6 +7,8 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 
+TOP_K = 3
+
 Settings.llm = OpenAI(model="gpt-4")
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
 
@@ -14,9 +16,9 @@ db = chromadb.PersistentClient(path="chroma_database")
 chroma_collection = db.get_or_create_collection("libs")
 
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(similarity_top_k=1)
+retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(similarity_top_k=TOP_K)
 
-response = retriever.retrieve("A function that lets you know what tab is being selected")
-print("score: ", response[0].score)
-print(response[0].node.text)
-
+responses = retriever.retrieve("This function converts a file into a string-based format that represents its contents, creating a link-like reference to the file’s data. It uses a helper to read the file, and once complete, returns the result or an error if the reading fails.")
+for response in responses:
+  print("score: ", response.score)
+  print(response.node.text)
