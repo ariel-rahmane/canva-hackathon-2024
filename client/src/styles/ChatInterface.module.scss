@@ -54,9 +54,7 @@
   .textField {
     background-color: rgb(19, 19, 19);
     border-radius: 20px;
-    &:focus {
-      border-color: #c66bd5;
-    }
+    border: 1px solid rgba(255, 255, 255, 0.16);
   }
   button {
     width: 7rem;
