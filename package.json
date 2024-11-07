@@ -6,7 +6,8 @@
   "author": "Ariel Rahmane <ariel.rahmane@leonardo.ai>",
   "license": "MIT",
   "scripts": {
-    "parse:libs": "ts-node src/parsers/libs-parser.ts"
+    "parse:libs": "ts-node src/parsers/libs-parser.ts",
+    "parse:all": "ts-node src/parsers/full-code-parser.ts"
   },
   "dependencies": {
     "ts-morph": "^24.0.0",
