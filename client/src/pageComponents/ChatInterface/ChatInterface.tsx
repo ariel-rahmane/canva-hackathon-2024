@@ -49,11 +49,7 @@ export function ChatInterface() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const newMessages = [
-      ...messages,
-      { role: "user", content: input } as ChatMessage
-    ];
-    insertMessageToChat(newMessages);
+    insertMessageToChat({ role: "user", content: input });
     setInput("");
     setLoading(true);
 
@@ -61,10 +57,7 @@ export function ChatInterface() {
     console.log(data);
 
     setLoading(false);
-    insertMessageToChat([
-      ...newMessages,
-      { role: "assistant", content: data[0] }
-    ]);
+    insertMessageToChat({ role: "assistant", content: data[0] });
   };
 
   const scrollToBottom = () => {
@@ -78,8 +71,8 @@ export function ChatInterface() {
     }
   };
 
-  const insertMessageToChat = (message: ChatMessage[]) => {
-    setMessages(message);
+  const insertMessageToChat = (message: ChatMessage) => {
+    setMessages((prevMessages) => [...prevMessages, message]);
     scrollToBottom();
   };
 
@@ -97,13 +90,18 @@ export function ChatInterface() {
               msg.content
             ) : (
               <div>
-                <p style={{ color: "#191f75" }}>
-                  <b style={{ color: "#000000" }}>File location:</b>{" "}
-                  <b>{msg.content.fileLocation}</b> from line{" "}
-                  <b>{msg.content.startLineNumber}</b> to line{" "}
+                <p
+                  style={{
+                    color: "#dddddd",
+                    borderRadius: "4px",
+                    padding: "10px",
+                    backgroundColor: "#2d2d2d"
+                  }}
+                >
+                  <b>File location:</b> <b>{msg.content.fileLocation}</b> from
+                  line <b>{msg.content.startLineNumber}</b> to line{" "}
                   <b>{msg.content.endLineNumber}</b>
                 </p>
-                <p></p>
                 <br />
                 <SyntaxHighlighter
                   language="typescript"
@@ -127,6 +125,7 @@ export function ChatInterface() {
       </div>
       <div className={styles.inputContainer}>
         <TextField
+          className={styles.textField}
           variant="outlined"
           fullWidth
           value={input}
@@ -137,13 +136,16 @@ export function ChatInterface() {
               handleSend();
             }
           }}
+          slotProps={{
+            input: {
+              style: { color: "white" }
+            },
+            inputLabel: {
+              style: { color: "rgba(255, 255, 255, 0.5)" }
+            }
+          }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSend}
-          disabled={loading}
-        >
+        <Button variant="contained" onClick={handleSend} disabled={loading}>
           Send
         </Button>
       </div>
