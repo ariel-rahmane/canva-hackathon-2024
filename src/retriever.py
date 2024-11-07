@@ -16,7 +16,7 @@ chroma_collection = db.get_or_create_collection("libs")
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(similarity_top_k=1)
 
-response = retriever.retrieve("A function that checks if a specific variation is disabled")
+response = retriever.retrieve("A function that lets you know what tab is being selected")
 print("score: ", response[0].score)
 print(response[0].node.text)
 
