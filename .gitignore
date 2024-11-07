@@ -2,5 +2,5 @@ node_modules/
 data/
 chunks/
 dist/
-output/
+parser_output/
 chroma_database/

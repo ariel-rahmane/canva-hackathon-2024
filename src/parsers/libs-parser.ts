@@ -4,7 +4,7 @@ import path from "path";
 
 const BASE_DIRECTORY = "/Users/arielrahmane_1/leonardo-ai/repos";
 const DIRECTORY_PATH = BASE_DIRECTORY + "/leonardo-platform/libs";
-const OUTPUT_DIRECTORY = path.join(__dirname, "../../output");
+const OUTPUT_DIRECTORY = path.join(__dirname, "../../parser_output");
 const MAX_NODES_PER_FILE = 100;
 
 const includeExtensions = [".ts", ".tsx"];

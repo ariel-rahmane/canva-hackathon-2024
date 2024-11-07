@@ -17,7 +17,7 @@ vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
 # Testing with a small amount of nodes for now
-with open('./output/nodes_5.json', 'r') as f:
+with open('./parser_output/nodes_5.json', 'r') as f:
     chunks = json.load(f)
 
 nodes = [TextNode(text=chunk['code'], metadata=chunk['metadata']) for chunk in chunks]
