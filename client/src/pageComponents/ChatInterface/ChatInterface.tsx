@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import styles from "@/styles/ChatInterface.module.scss";
@@ -36,7 +36,7 @@ export function ChatInterface() {
   const [loading, setLoading] = useState(false);
   const [currentResponses, setCurrentResponses] = useState([]);
   const [responseIndex, setResponseIndex] = useState(0);
-  const [isResponseLimitReached, setIsResponseLimitReached] = useState(false);
+  const [isResponseLimitReached, setIsResponseLimitReached] = useState(true);
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
   async function sendMessage(userMessage: string) {
@@ -83,16 +83,22 @@ export function ChatInterface() {
   };
 
   const handleMore = () => {
+    if (!currentResponses.length) return;
     const nextIndex = responseIndex + 1;
     insertMessageToChat({
       role: "assistant",
       content: currentResponses[nextIndex]
     });
-    if (nextIndex + 1 >= currentResponses.length) {
-      setIsResponseLimitReached(true);
-    }
     setResponseIndex(nextIndex);
   };
+
+  useEffect(() => {
+    if (responseIndex + 1 >= currentResponses.length) {
+      setIsResponseLimitReached(true);
+    } else {
+      setIsResponseLimitReached(false);
+    }
+  }, [responseIndex, currentResponses]);
 
   return (
     <div className={styles.chatContainer}>
@@ -140,7 +146,7 @@ export function ChatInterface() {
         {loading && (
           <CircularProgress size={24} className={styles.loadingSpinner} />
         )}
-        {isResponseLimitReached && (
+        {isResponseLimitReached && currentResponses.length > 0 && (
           <div>
             Couldn&apos;t find what you are looking for? Try adding more details
             to your prompt.
@@ -187,7 +193,9 @@ export function ChatInterface() {
         <Button
           variant="contained"
           onClick={handleMore}
-          disabled={loading || isResponseLimitReached}
+          disabled={
+            loading || isResponseLimitReached || !currentResponses.length
+          }
           sx={{
             "&.Mui-disabled": {
               background:
