@@ -34,6 +34,9 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentResponses, setCurrentResponses] = useState([]);
+  const [responseIndex, setResponseIndex] = useState(0);
+  const [isResponseLimitReached, setIsResponseLimitReached] = useState(false);
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
   async function sendMessage(userMessage: string) {
@@ -49,11 +52,14 @@ export function ChatInterface() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    setIsResponseLimitReached(false);
     insertMessageToChat({ role: "user", content: input });
     setInput("");
     setLoading(true);
 
     const data = await sendMessage(input);
+    setCurrentResponses(data);
+    setResponseIndex(0);
     console.log(data);
 
     setLoading(false);
@@ -74,6 +80,18 @@ export function ChatInterface() {
   const insertMessageToChat = (message: ChatMessage) => {
     setMessages((prevMessages) => [...prevMessages, message]);
     scrollToBottom();
+  };
+
+  const handleMore = () => {
+    const nextIndex = responseIndex + 1;
+    insertMessageToChat({
+      role: "assistant",
+      content: currentResponses[nextIndex]
+    });
+    if (nextIndex + 1 >= currentResponses.length) {
+      setIsResponseLimitReached(true);
+    }
+    setResponseIndex(nextIndex);
   };
 
   return (
@@ -122,6 +140,12 @@ export function ChatInterface() {
         {loading && (
           <CircularProgress size={24} className={styles.loadingSpinner} />
         )}
+        {isResponseLimitReached && (
+          <div>
+            Couldn&apos;t find what you are looking for? Try adding more details
+            to your prompt.
+          </div>
+        )}
       </div>
       <div className={styles.inputContainer}>
         <TextField
@@ -145,8 +169,35 @@ export function ChatInterface() {
             }
           }}
         />
-        <Button variant="contained" onClick={handleSend} disabled={loading}>
+        <Button
+          variant="contained"
+          onClick={handleSend}
+          disabled={loading || !input}
+          sx={{
+            "&.Mui-disabled": {
+              background:
+                "linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.5) 100%), linear-gradient(81deg, rgb(78, 78, 78) -23.47%, rgb(117, 117, 117) 45.52%, rgb(154, 154, 154) 114.8%)", // Background color when disabled
+              color: "white",
+              opacity: 0.4
+            }
+          }}
+        >
           Send
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleMore}
+          disabled={loading || isResponseLimitReached}
+          sx={{
+            "&.Mui-disabled": {
+              background:
+                "linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.5) 100%), linear-gradient(81deg, rgb(78, 78, 78) -23.47%, rgb(117, 117, 117) 45.52%, rgb(154, 154, 154) 114.8%)", // Background color when disabled
+              color: "white",
+              opacity: 0.4
+            }
+          }}
+        >
+          More
         </Button>
       </div>
     </div>
