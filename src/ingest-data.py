@@ -4,7 +4,6 @@ import os
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.core.settings import Settings
-from tiktoken import get_encoding
 from llama_index.core.schema import TextNode
 from llama_index.llms.openai import OpenAI, Tokenizer
 from llama_index.embeddings.openai import OpenAIEmbedding
@@ -17,7 +16,7 @@ from llama_index.core import MockEmbedding
 token_counter = TokenCountingHandler(
     tokenizer=tiktoken.encoding_for_model("text-embedding-3-large").encode
 )
-encoding = get_encoding("cl100k_base")
+encoding = tiktoken.get_encoding("cl100k_base")
 MAX_TOKENS = 8191
 callback_manager = CallbackManager([token_counter])
 Settings.callback_manager = callback_manager
@@ -39,12 +38,12 @@ def printResults():
 # ---------------------------------------------
 
 # Uncomment these 2 lines for cost analysis
-Settings.llm = MockLLM(max_tokens=8191)
-Settings.embed_model = MockEmbedding(embed_dim=3072)
+# Settings.llm = MockLLM(max_tokens=8191)
+# Settings.embed_model = MockEmbedding(embed_dim=3072)
 
 # Comment the below two lines for cost analysis
-# Settings.llm = OpenAI(model="gpt-3.5-turbo")
-# Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
+Settings.llm = OpenAI(model="gpt-3.5-turbo")
+Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
 
 db = chromadb.PersistentClient(path="./full_database")
 chroma_collection = db.get_or_create_collection("leonardo_platform")
@@ -63,17 +62,25 @@ for filename in os.listdir(input_dir):
             file_chunks = json.load(f)
             chunks.extend(file_chunks)
 
-nodes = [TextNode(text=chunk['code'], metadata=chunk['metadata']) for chunk in chunks]
 
+nodes = [TextNode(text=chunk['metadata']['comment'] + chunk['code'], metadata=chunk['metadata']) for chunk in chunks]
+
+filtered_nodes = []
 for node in nodes:
     tokens = encoding.encode(node.text)
     token_count = len(tokens)
-
-    if token_count > MAX_TOKENS:
+    
+    if token_count <= MAX_TOKENS:
+        filtered_nodes.append(node)
+    else:
         print(f"Node exceeds {MAX_TOKENS} tokens. Token count: {token_count}. Location: {node.metadata['fileName']}")
 
-# index = VectorStoreIndex(
-#   nodes,
-#   storage_context=storage_context, # Comment this line for cost analysis
-#   show_progress=True
-# )
+nodes = filtered_nodes
+
+index = VectorStoreIndex(
+  filtered_nodes,
+  storage_context=storage_context, # Comment this line for cost analysis
+  show_progress=True
+)
+
+printResults()

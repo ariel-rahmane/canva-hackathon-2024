@@ -7,7 +7,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 
-TOP_K = 3
+TOP_K = 10
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
@@ -15,8 +15,8 @@ CORS(app, origins=["http://localhost:3000"])
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
 
-db = chromadb.PersistentClient(path="chroma_database")
-chroma_collection = db.get_or_create_collection("libs")
+db = chromadb.PersistentClient(path="full_database")
+chroma_collection = db.get_or_create_collection("leonardo_platform")
 
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(similarity_top_k=TOP_K)
