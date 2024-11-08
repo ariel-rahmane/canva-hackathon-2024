@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "RAG code search",
+  title: "Leonardo Code Search",
   description: "Code search for Leonardo Platform using RAG"
 };
 
