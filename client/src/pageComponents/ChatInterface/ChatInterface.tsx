@@ -6,7 +6,7 @@ import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import styles from "@/styles/ChatInterface.module.scss";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, styled } from "@mui/material";
 
 interface ApiResponse {
   score: string;
@@ -29,6 +29,20 @@ interface UserMessage {
 type ChatMessage = UserMessage | AssistantMessage;
 
 const apiUrl = process.env.NEXT_PUBLIC_API_HOST;
+
+const TextInput = styled(TextField)({
+  "& .MuiInput-underline:after": {
+    borderBottomColor: "green"
+  },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderRadius: "20px"
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#C66BD5"
+    }
+  }
+});
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -119,7 +133,8 @@ export function ChatInterface() {
                     color: "#dddddd",
                     borderRadius: "4px",
                     padding: "10px",
-                    backgroundColor: "#2d2d2d"
+                    backgroundColor: "#2d2d2d",
+                    overflowWrap: "anywhere"
                   }}
                 >
                   <b>File location:</b> <b>{msg.content.fileLocation}</b> from
@@ -147,14 +162,14 @@ export function ChatInterface() {
           <CircularProgress size={24} className={styles.loadingSpinner} />
         )}
         {isResponseLimitReached && currentResponses.length > 0 && (
-          <div>
+          <div className={styles.limitReachedMessage}>
             Couldn&apos;t find what you are looking for? Try adding more details
             to your prompt.
           </div>
         )}
       </div>
       <div className={styles.inputContainer}>
-        <TextField
+        <TextInput
           className={styles.textField}
           variant="outlined"
           fullWidth
@@ -172,6 +187,11 @@ export function ChatInterface() {
             },
             inputLabel: {
               style: { color: "rgba(255, 255, 255, 0.5)" }
+            }
+          }}
+          sx={{
+            ".Mui-focused fieldset": {
+              borderColor: "#C66BD5"
             }
           }}
         />

@@ -37,7 +37,15 @@
   align-self: flex-start;
   max-width: 80%;
   width: 80%;
-  border: 1px solid #171b29;
+  border-width: 1px;
+  border-image-slice: 1;
+  border-style: solid;
+  border-image-source: linear-gradient(
+    81.02deg,
+    rgb(250, 85, 96) -23.47%,
+    rgb(177, 75, 244) 45.52%,
+    rgb(77, 145, 255) 114.8%
+  );
 }
 
 .codeContainer {
@@ -69,6 +77,12 @@
       box-shadow: rgba(161, 128, 255, 0.6) 0px 0px 1rem 0px;
     }
   }
+}
+
+.limitReachedMessage {
+  align-self: center;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
 }
 
 .loadingSpinner {
