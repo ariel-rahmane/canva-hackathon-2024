@@ -63,7 +63,7 @@ for filename in os.listdir(input_dir):
             chunks.extend(file_chunks)
 
 
-nodes = [TextNode(text=chunk['metadata']['comment'] + chunk['code'], metadata=chunk['metadata']) for chunk in chunks]
+nodes = [TextNode(text=chunk['metadata']['comment'] + "\n" + chunk['code'], metadata=chunk['metadata']) for chunk in chunks]
 
 filtered_nodes = []
 for node in nodes:
