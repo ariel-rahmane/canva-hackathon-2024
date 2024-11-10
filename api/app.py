@@ -68,10 +68,13 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_image_description(base64_image):
+    system_prompt = "You are a software engineer specializing in creating structured, detailed descriptions of UI components, especially in React and ChakraUI. For each component, break down the description into key sections and describe each part's role, function, and visual design in detail. Follow this structure: \n 1. Begin with an overview sentence describing the component’s overall purpose. \n 2. Organize the description into sections, each focusing on a specific part of the component, such as headers, resource metrics, links, and action buttons. For each section, include details on hierarchy, layout, icons, tooltips, colors, and spacing, explaining how they contribute to the user experience and component functionality. \n 3. Conclude with a sentence on the overall style and how it impacts usability. \n\n Ensure the response is cohesive and flows naturally, suitable for creating a meaningful vector embedding to match with the component’s code. Write in a single, well-structured paragraph, using descriptive language to vividly convey the component’s appearance and purpose. Avoid bullet points or lists; instead, use a narrative style that mimics a section-by-section breakdown, aiming for 150+ words."
     response = openai.chat.completions.create(
         model="gpt-4o",
+        max_completion_tokens= 1024,
+        temperature=0.4,
         messages=[
-            {"role": "system", "content": "You are a software engineer that can describe UI components written in React and ChakraUI. Reply only in one paragraph with no special characters. Descriptions include the structure of the component. Include only the description in the response."},
+            {"role": "system", "content": system_prompt},
             {
                 "role": "user",
                 "content": [
@@ -85,7 +88,6 @@ def get_image_description(base64_image):
                 ],
             }
         ],
-        max_tokens=1024,
     )
 
     description = response.choices[0].message.content

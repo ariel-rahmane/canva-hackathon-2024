@@ -25,15 +25,14 @@ interface AssistantMessage {
 interface UserMessage {
   role: "user";
   content: string;
+  image?: File;
 }
+
 type ChatMessage = UserMessage | AssistantMessage;
 
 const apiUrl = process.env.NEXT_PUBLIC_API_HOST;
 
 const TextInput = styled(TextField)({
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "green"
-  },
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
       borderRadius: "20px"
@@ -103,8 +102,9 @@ export function ChatInterface() {
     if (!pastedImage) return;
 
     setIsResponseLimitReached(false);
-    insertMessageToChat({ role: "user", content: input });
+    insertMessageToChat({ role: "user", content: input, image: pastedImage });
     setInput("");
+    setPastedImage(null);
     setLoading(true);
 
     const formData = new FormData();
@@ -121,7 +121,6 @@ export function ChatInterface() {
       if (response.ok) {
         console.log("Image and message sent successfully");
         setInput("");
-        setPastedImage(null);
         setLoading(false);
         setCurrentResponses(data);
         setResponseIndex(0);
@@ -180,7 +179,20 @@ export function ChatInterface() {
             }
           >
             {msg.role === "user" ? (
-              msg.content
+              <div>
+                <p style={{ paddingBottom: "20px" }}>{msg.content}</p>
+                {msg.image && (
+                  <img
+                    src={URL.createObjectURL(msg.image)}
+                    alt="Uploaded"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "200px",
+                      borderRadius: "8px"
+                    }}
+                  />
+                )}
+              </div>
             ) : (
               <div>
                 <p
@@ -235,6 +247,7 @@ export function ChatInterface() {
           placeholder="Type a message..."
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              e.preventDefault();
               handleSend();
             }
           }}
@@ -263,7 +276,12 @@ export function ChatInterface() {
                 borderRadius: "8px"
               }}
             />
-            <Button onClick={() => setPastedImage(null)}>Remove Image</Button>
+            <Button
+              onClick={() => setPastedImage(null)}
+              className={styles.removeImageButton}
+            >
+              Remove Image
+            </Button>
           </div>
         )}
         <Button
