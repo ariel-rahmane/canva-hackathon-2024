@@ -6,4 +6,5 @@ dist/
 parser_output/
 full_code_output/
 chroma_database/
+full_database/
 large_files_output/
