@@ -29,7 +29,6 @@ filters = MetadataFilters(
     ]
 )
 
-
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(filters=filters, similarity_top_k=TOP_K)
 

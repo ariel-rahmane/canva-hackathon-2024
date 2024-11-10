@@ -62,7 +62,6 @@ for filename in os.listdir(input_dir):
             file_chunks = json.load(f)
             chunks.extend(file_chunks)
 
-
 nodes = [TextNode(text=chunk['metadata']['comment'] + "\n" + chunk['code'], metadata=chunk['metadata']) for chunk in chunks]
 
 filtered_nodes = []
@@ -74,8 +73,6 @@ for node in nodes:
         filtered_nodes.append(node)
     else:
         print(f"Node exceeds {MAX_TOKENS} tokens. Token count: {token_count}. Location: {node.metadata['fileName']}")
-
-nodes = filtered_nodes
 
 index = VectorStoreIndex(
   filtered_nodes,
