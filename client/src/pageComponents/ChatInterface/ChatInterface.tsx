@@ -51,7 +51,21 @@ export function ChatInterface() {
   const [currentResponses, setCurrentResponses] = useState([]);
   const [responseIndex, setResponseIndex] = useState(0);
   const [isResponseLimitReached, setIsResponseLimitReached] = useState(true);
+  const [pastedImage, setPastedImage] = useState<File | null>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
+
+  const handlePaste = (event: React.ClipboardEvent) => {
+    const items = event.clipboardData.items;
+    for (const item of items) {
+      if (item.type.startsWith("image")) {
+        const file = item.getAsFile();
+        if (file) {
+          setPastedImage(file);
+          event.preventDefault();
+        }
+      }
+    }
+  };
 
   async function sendMessage(userMessage: string) {
     const response = await fetch(`${apiUrl}/api/chat`, {
@@ -66,6 +80,11 @@ export function ChatInterface() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    if (pastedImage) {
+      await sendImage();
+      return;
+    }
+
     setIsResponseLimitReached(false);
     insertMessageToChat({ role: "user", content: input });
     setInput("");
@@ -78,6 +97,42 @@ export function ChatInterface() {
 
     setLoading(false);
     insertMessageToChat({ role: "assistant", content: data[0] });
+  };
+
+  const sendImage = async () => {
+    if (!pastedImage) return;
+
+    setIsResponseLimitReached(false);
+    insertMessageToChat({ role: "user", content: input });
+    setInput("");
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("message", input);
+    formData.append("image", pastedImage);
+
+    try {
+      const response = await fetch(`${apiUrl}/api/upload`, {
+        method: "POST",
+        body: formData
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Image and message sent successfully");
+        setInput("");
+        setPastedImage(null);
+        setLoading(false);
+        setCurrentResponses(data);
+        setResponseIndex(0);
+        console.log(data);
+        insertMessageToChat({ role: "assistant", content: data[0] });
+      } else {
+        console.error("Failed to send image and message");
+      }
+    } catch (error) {
+      console.error("Error sending image and message:", error);
+    }
   };
 
   const scrollToBottom = () => {
@@ -175,6 +230,8 @@ export function ChatInterface() {
           fullWidth
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onPaste={handlePaste}
+          multiline
           placeholder="Type a message..."
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -195,6 +252,20 @@ export function ChatInterface() {
             }
           }}
         />
+        {pastedImage && (
+          <div style={{ marginTop: "10px" }}>
+            <img
+              src={URL.createObjectURL(pastedImage)}
+              alt="Pasted preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "200px",
+                borderRadius: "8px"
+              }}
+            />
+            <Button onClick={() => setPastedImage(null)}>Remove Image</Button>
+          </div>
+        )}
         <Button
           variant="contained"
           onClick={handleSend}
