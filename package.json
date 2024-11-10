@@ -8,9 +8,12 @@
   "scripts": {
     "parse:libs": "ts-node src/parsers/libs-parser.ts",
     "parse:all": "ts-node src/parsers/full-code-parser.ts",
-    "parse:large-files": "ts-node src/parsers/large-files-parser.ts"
+    "parse:large-files": "ts-node src/parsers/large-files-parser.ts",
+    "extract:github": "ts-node src/parsers/github-extraction.ts"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
     "ts-morph": "^24.0.0",
     "typescript": "^5.6.3"
   },
