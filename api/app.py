@@ -6,6 +6,11 @@ from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.core.vector_stores import (
+    MetadataFilter,
+    MetadataFilters,
+    FilterOperator,
+)
 
 TOP_K = 10
 
@@ -18,8 +23,15 @@ Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
 db = chromadb.PersistentClient(path="full_database")
 chroma_collection = db.get_or_create_collection("leonardo_platform")
 
+filters = MetadataFilters(
+    filters=[
+        MetadataFilter(key="type", operator=FilterOperator.NIN, value=["ImportDeclaration", "ExportDeclaration", "ExpressionStatement", "ExportAssignment"]),
+    ]
+)
+
+
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(similarity_top_k=TOP_K)
+retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(filters=filters, similarity_top_k=TOP_K)
 
 @app.route('/api/chat', methods=['POST'])
 def query():
