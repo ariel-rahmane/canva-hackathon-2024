@@ -180,7 +180,7 @@ export function ChatInterface() {
           >
             {msg.role === "user" ? (
               <div>
-                <p style={{ paddingBottom: "20px" }}>{msg.content}</p>
+                <p>{msg.content}</p>
                 {msg.image && (
                   <img
                     src={URL.createObjectURL(msg.image)}
@@ -188,7 +188,8 @@ export function ChatInterface() {
                     style={{
                       maxWidth: "100%",
                       maxHeight: "200px",
-                      borderRadius: "8px"
+                      borderRadius: "8px",
+                      paddingTop: "20px"
                     }}
                   />
                 )}
