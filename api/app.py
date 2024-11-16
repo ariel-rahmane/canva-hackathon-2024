@@ -19,7 +19,7 @@ from llama_index.core.vector_stores import (
 TOP_K = 10
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"])
+CORS(app, origins=["http://localhost:8080"])
 
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-large")
